@@ -5331,10 +5331,16 @@ hooksCmd.command('learn')
       result.recommendation = best;
     }
 
-    // Save
+    // Save to intelligence.json
     data.learning = engine.export();
     fs.mkdirSync(path.dirname(dataPath), { recursive: true });
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
+    // Also save to dedicated learning-state.json (atomic write)
+    const lsPath = path.join(path.dirname(dataPath), 'learning-state.json');
+    const tmpPath = lsPath + '.tmp';
+    fs.writeFileSync(tmpPath, JSON.stringify(data.learning, null, 2));
+    fs.renameSync(tmpPath, lsPath);
 
     console.log(JSON.stringify(result));
   });
@@ -5409,10 +5415,16 @@ hooksCmd.command('batch-learn')
       results.push({ state: exp.state, action: exp.action, delta });
     }
 
-    // Save
+    // Save to intelligence.json
     data.learning = engine.export();
     fs.mkdirSync(path.dirname(dataPath), { recursive: true });
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
+    // Also save to dedicated learning-state.json (atomic write)
+    const lsPath = path.join(path.dirname(dataPath), 'learning-state.json');
+    const tmpPath = lsPath + '.tmp';
+    fs.writeFileSync(tmpPath, JSON.stringify(data.learning, null, 2));
+    fs.renameSync(tmpPath, lsPath);
 
     const stats = engine.getStatsSummary();
     console.log(JSON.stringify({
